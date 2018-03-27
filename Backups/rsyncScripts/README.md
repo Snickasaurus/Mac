@@ -3,9 +3,9 @@
 My Dropbox holds all scripts for Linux, Mac and Windows. And even though I trust Dropbox not to delete any of my shit I'm
 still paranoid enough to keep them duplicated elsewhere.
 
-This is the directory structure:
+The directory structure looks as follows: /Users/Me/Dropbox/Scripts and under that is what you see in the pic.
 
-[](img/desktop.png)
+![](https://github.com/Snickasaurus/Mac/blob/master/Backups/rsyncScripts/img/dropbox.png)
 
 
 This script simply uses Rsync to mirror to my server.
