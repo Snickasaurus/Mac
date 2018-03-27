@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Name    : backup-MyDocs.sh 
+# Name    : backupMyDocs.sh 
 # Author  : Snickasaurus
 # Date    : 20180204
 # Purpose : TAR /Users/$USER/Documents/MyDocs and move it to FreeNAS.
