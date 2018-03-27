@@ -5,7 +5,7 @@ still paranoid enough to keep them duplicated elsewhere.
 
 This is the directory structure:
 
-
+[](img/desktop.png)
 
 
 This script simply uses Rsync to mirror to my server.
