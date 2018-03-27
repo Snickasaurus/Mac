@@ -1,18 +1,49 @@
+#!/bin/bash
 
-Backup macOS user profile with tar.
+# Name    : backup-MyDocs.sh 
+# Author  : Snickasaurus
+# Date    : 20180204
+# Purpose : TAR /Users/$USER/Documents/MyDocs and move it to FreeNAS.
 
-In your macOS user directory will be "Documents". This folder gets crowded very quickly when you install certain applications. Over the years I've gotten into the bad habit of creating a "MyDocs" directory and storing all of my files there. Then I can just simply tar that folder and copy it to my NAS.
+# Variables
+currentUser=$(ls -l /dev/console | cut -d " " -f 4)
+currentLogFile=/Users/"${currentUser}"/Library/Logs/_MyLogs/MyDocs-.log
 
-My setup: macOS High Sierra (10.13.3) and FreeNAS 11-1-U2
+# Functions
+function currentTime(){
+	date "+%Y%m%d-%H%M%S"
+}
 
-What's happeneing in this script.
+# Log Directory Check
+if [ ! -d /Users/"$currentUser"/Library/Logs/_MyLogs ]
+	then
+	mkdir /Users/"$currentUser"/Library/Logs/_MyLogs
+fi
 
-Variables are set to get the current logged in user and mark what will be the log file.
-A function called "CurrentTime" is created.
-A check is run to make sure the log directory is present and if not then it's created.
-Logging is captured from stin stout and sterr.
-Using the 'find' command, old backups and log files are removed to make room.
-Stamping the log file to show the beginning of the script with time stamp.
-Change directory to the backup location and run the tar command.
-Stop the log file to show the backup is finished running.
-Rename the log file and backup archive using the 'currentTime' function.
+# Logging
+exec 3>&1 4>&2 
+trap 'exec 2>&4 1>&3' 0 1 2 3
+exec 1>>"$currentLogFile" 2>&1
+
+# Prune old backups
+find /Volumes/Backups/Mac/macmini1/MyDocs-*.tar -ctime +25 -print0 | xargs -0 rm
+find /Users/"$currentUser"/Library/Logs/_MyLogs/MyDocs-*.log -ctime +25 -print0 | xargs -0 rm
+
+# Stamp Log File - Starting Tar
+echo "=====Starting @ "$(date "+%H:%M:%S  %Y/%m/%d")" ====="
+echo " "
+echo " "
+
+# Backup MyDocs directory
+cd /Volumes/Backups/Mac/macmini1 && /usr/bin/tar -cvf MyDocs-.tar --exclude=".DS_Store" -C /Users/"$currentUser"/Documents/MyDocs .
+
+# Stamp Log File - Tar Complete
+echo " "
+echo " "
+echo "=====Completed @ "$(date "+%H:%M:%S  %Y/%m/%d")" ====="
+
+# Rename the log file and archive.
+cd /Users/"$currentUser"/Library/Logs/_MyLogs && /bin/mv MyDocs-.log MyDocs-"$(currentTime)".log
+cd /Volumes/Backups/Mac/macmini1 && /bin/mv MyDocs-.tar MyDocs-"$(currentTime)".tar
+
+exit 0
